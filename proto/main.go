@@ -84,7 +84,7 @@ func main() {
 	totalCredit := float64(0)
 	totalAutopayStart := 0
 	totalAutopayEnd := 0
-	user_balance := float64(0)
+	userBalance := float64(0)
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -97,7 +97,7 @@ func main() {
 		record := loadRecord(file)
 
 		if record.UserID == 2456938384156277127 {
-			user_balance += record.DollarAmt
+			userBalance += record.DollarAmt
 		}
 
 		switch record.RecordType {
@@ -116,7 +116,7 @@ func main() {
 	fmt.Printf("What is the total amount in dollars of credits?     %f\n", totalCredit)
 	fmt.Printf("How many autopays were started?                     %d\n", totalAutopayStart)
 	fmt.Printf("How many autopays were ended?                       %d\n", totalAutopayEnd)
-	fmt.Printf("What is balance of user ID 2456938384156277127?     %f\n", user_balance)
+	fmt.Printf("What is balance of user ID 2456938384156277127?     %f\n", userBalance)
 
 	defer file.Close()
 }
