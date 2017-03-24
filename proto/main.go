@@ -1,11 +1,3 @@
-/*
-
-A quick note 
- storing a DollarAmt as a uint64 type is advantageous over float64 because we can perform
- chained additions without increasing loss of precision (i.e. invalid final result)
-
-
-*/ 
 package main
 
 import (
