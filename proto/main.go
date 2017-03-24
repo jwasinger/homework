@@ -9,9 +9,9 @@ import (
 )
 
 type Header struct {
-	MagicString    string
-	Version        byte
-	NumRecords     uint32
+	MagicString string
+	Version     byte
+	NumRecords  uint32
 }
 
 const (
@@ -22,7 +22,7 @@ const (
 )
 
 /*
-	MPS7 stores dollar amounts using float64 format.  However, this is not a good 
+	MPS7 stores dollar amounts using float64 format.  However, this is not a good
 	representation for precise calculation due to accumulation of floating point errors
 	over successive operations on numbers.
 
@@ -32,10 +32,10 @@ const (
 	the floating point value float64(23.15) would be represented as int64(2315)
 */
 type Record struct {
-	RecordType     byte
-	TimeStamp      uint32
-	UserID         uint64
-	DollarAmt      int64
+	RecordType byte
+	TimeStamp  uint32
+	UserID     uint64
+	DollarAmt  int64
 }
 
 /*
@@ -102,7 +102,7 @@ func loadRecord(file *os.File) *Record {
 /*
 	convert int64 dollar representation to printable string
 */
-func formatAmt(val int64) string{
+func formatAmt(val int64) string {
 	cents := val % 100
 	dollars := val / 100
 	return fmt.Sprintf("%d.%d", dollars, cents)
