@@ -1,5 +1,6 @@
-To build and run this code (I'm assuming you have a Go environment set up already):
+To build and run this code (assuming you have a Go environment set up already):
   1) Make the directory $GOPATH/jwasinger.
   2) Move this folder  under that directory.
-  3) Run 'go build' in the directory $GOPATH/jwasinger/proto.
-  4) Run the executable named 'proto' that appears in $GOPATH/jwasinger/proto.
+  3) Execute 'go run main.go'
+
+  This code has been tested with Go 1.7
