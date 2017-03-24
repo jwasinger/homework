@@ -23,7 +23,7 @@ func ChecksumMiddleware(h http.Handler) http.Handler {
 		sortedKeys := make([]string, 0, len(r.Header))
 		canonRes := ""
 
-		//use httptest's ResponseRecorder to extract status code and body value from the request
+		//use httptest's ResponseRecorder to extract status code, body and headers from an identical request
 
 		rr := httptest.NewRecorder()
 		h.ServeHTTP(rr, r)
@@ -50,12 +50,14 @@ func ChecksumMiddleware(h http.Handler) http.Handler {
 		canonRes += crlf + crlf
 		canonRes += body
 
-		//calculate sha1 value of the canonical response and then hex encode the result
+		//calculate sha1 value of the canonical response, hex encode the result and add it as a header
 
 		hsh := sha1.New()
 		hsh.Write([]byte(canonRes))
 
 		encodedCanonRes := hex.EncodeToString(hsh.Sum(nil))
+
+		fmt.Println(encodedCanonRes)
 
 		w.Header().Set("X-Checksum", encodedCanonRes)
 

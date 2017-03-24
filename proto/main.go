@@ -1,3 +1,11 @@
+/*
+
+A quick note 
+ storing a DollarAmt as a uint64 type is advantageous over float64 because we can perform
+ chained additions without increasing loss of precision (i.e. invalid final result)
+
+
+*/ 
 package main
 
 import (
@@ -21,13 +29,33 @@ const (
 	END_AUTOPLAY   byte = 3
 )
 
+/*
+	MPS7 stores dollar amounts using float64 format.  However, this is not a good 
+	representation for precise calculation due to accumulation of floating point errors
+	over successive operations on numbers.
+
+	I chose to represent dollar amounts as int64 types.
+
+	For example:
+	the floating point value float64(23.15) would be represented as int64(2315)
+*/
 type Record struct {
 	RecordType     byte
 	TimeStamp      uint32
 	UserID         uint64
-	DollarAmt      float64
+	DollarAmt      int64
 }
 
+/*
+convert a float64 dollar amount to an int64 representation
+*/
+func truncate(num float64) int64 {
+	return int64(num * 100.0)
+}
+
+/*
+read a number of bytes from file, advance the offset by that amount
+*/
 func readBytes(file *os.File, number int) []byte {
 	bytes := make([]byte, number)
 
@@ -70,21 +98,31 @@ func loadRecord(file *os.File) *Record {
 
 	if record.RecordType == DEBIT || record.RecordType == CREDIT {
 		dollarAmtBytes := readBytes(file, 8)
-		record.DollarAmt = math.Float64frombits(binary.BigEndian.Uint64(dollarAmtBytes))
+		dollarAmt := math.Float64frombits(binary.BigEndian.Uint64(dollarAmtBytes))
+		record.DollarAmt = truncate(dollarAmt)
 	} else {
-		record.DollarAmt = 0.0
+		record.DollarAmt = 0
 	}
 
 	return record
 }
 
+/*
+	convert int64 dollar representation to printable string
+*/
+func formatAmt(val int64) string{
+	cents := val % 100
+	dollars := val / 100
+	return fmt.Sprintf("%d.%d", dollars, cents)
+}
+
 func main() {
 	path := "txnlog.dat"
-	totalDebit := float64(0)
-	totalCredit := float64(0)
-	totalAutopayStart := 0
-	totalAutopayEnd := 0
-	userBalance := float64(0)
+	var totalDebit int64
+	var totalCredit int64
+	var totalAutopayStart int64
+	var totalAutopayEnd int64
+	var userBalance int64
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -112,11 +150,11 @@ func main() {
 		}
 	}
 
-	fmt.Printf("What is the total amount in dollars of debits?      %f\n", totalDebit)
-	fmt.Printf("What is the total amount in dollars of credits?     %f\n", totalCredit)
-	fmt.Printf("How many autopays were started?                     %d\n", totalAutopayStart)
-	fmt.Printf("How many autopays were ended?                       %d\n", totalAutopayEnd)
-	fmt.Printf("What is balance of user ID 2456938384156277127?     %f\n", userBalance)
+	fmt.Printf("Total amount in dollars of debits:      %s\n", formatAmt(totalDebit))
+	fmt.Printf("Total amount in dollars of credits:     %s\n", formatAmt(totalCredit))
+	fmt.Printf("Balance of user ID 2456938384156277127: %s\n", formatAmt(userBalance))
+	fmt.Printf("Number of autopays were started:        %d\n", totalAutopayStart)
+	fmt.Printf("Number of autopays were ended:          %d\n", totalAutopayEnd)
 
 	defer file.Close()
 }
